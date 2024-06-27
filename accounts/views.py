@@ -88,6 +88,10 @@ def activate(request, uidb64, token):
 # def dashboard(request):
 #    return render(request,'')
 
+@login_required(login_url='login')
+def dashboard(request):
+    return render(request, 'account/dashboard.html')
+
 def forgotPassword(request):
     if request.method == 'POST':
         email = request.POST.get('email')
