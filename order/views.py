@@ -8,6 +8,10 @@ from django.http import JsonResponse
 from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
 
+import stripe
+from django.conf import settings
+from django.urls import reverse
+
 def payments(request):
     body = json.loads(request.body)
     order = Order.objects.get(user=request.user, is_ordered = False, order_number= body['orderID'])
@@ -126,6 +130,7 @@ def place_order(request, total=0, quantity=0):
             data.save()
 
             order = Order.objects.get(user=current_user, is_ordered=False, order_number=order_number)
+            
             context = {
                 'order': order,
                 'cart_items': cart_items,
@@ -138,3 +143,69 @@ def place_order(request, total=0, quantity=0):
             
     else:
         return redirect('checkout')
+    
+
+    
+
+
+
+stripe.api_key = settings.STRIPE_SECRET_KEY
+
+def checkout_session(request):
+
+    products = [
+        {
+            "product_name": "Apple Macbook Pro 16",
+            "product_image": "https://dghyt15qon7us.cloudfront.net/images/productTheme/devices/small/16994358911333051.jpg",
+            "qty": 1,
+            "price": 100  # Price in cents
+        },
+        {
+            "product_name": "Apple iPhone 15",
+            "product_image": "https://dghyt15qon7us.cloudfront.net/images/productTheme/devices/small/0.37064300%2017125747411333074.jpg",
+            "qty": 1,
+            "price": 200  # Price in cents
+        },
+        {
+            "product_name": "Ultimate Screen Protector",
+            "product_image": "https://30minutesfix.com/assets/images/repair-part.png",
+            "qty": 1,
+            "price": 300  # Price in cents
+        }
+    ]
+
+    line_items = []
+    for product in products:
+        line_items.append({
+            'price_data': {
+                'currency': 'usd',
+                'product_data': {
+                    'name': product['product_name'],
+                   #'images': [product['product_image']],
+                },
+                'unit_amount': product['price'],
+            },
+            'quantity': product['qty'],
+        })
+    print(line_items)
+    session = stripe.checkout.Session.create(
+        payment_method_types=['card'],
+        line_items=line_items,
+        mode='payment',
+        success_url=request.build_absolute_uri(reverse('checkout_success')) + '?session_id={CHECKOUT_SESSION_ID}',
+        cancel_url=request.build_absolute_uri(reverse('checkout_failure')),
+    )
+
+    return JsonResponse({'id': session.id})
+
+def checkout_success(request):
+    session_id = request.GET.get('session_id')
+    session = stripe.checkout.Session.retrieve(session_id)
+    return render(request, 'payments/payment_success.html', {'session': session})
+
+def checkout_failure(request):
+    return render(request, 'payments/payment_fail.html')
+
+def show_payment_form(request):
+    stripe_public_key = settings.STRIPE_PUBLISHABLE_KEY
+    return render(request, 'payments/payment_checkout_page.html', {'stripe_public_key': stripe_public_key})

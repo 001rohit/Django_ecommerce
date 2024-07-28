@@ -98,6 +98,7 @@
 			<div id="paypal-button-container">
 			</div>
 			<a href="{% url 'checkout'%}" class="btn btn-primary btn-block" >Make payments</a>
+			<button id="checkout-button" class="btn btn-gray btn-block" >Checkout</button>
 		</div> <!-- card-body.// -->
 		</div> <!-- card.// -->
 
@@ -109,6 +110,28 @@
 
 </div> <!-- container .//  -->
 </section>
+<script type="text/javascript">
+    var stripe = Stripe('pk_test_51O9oJWSIrYqo1kANKNhtxOa9OH0Kau89DhOPsB96nM8ktWEbjBYMFZCV6D0gZ69WHqwotsK4eeBG6VpUz5hQMXCm008c0Q6Df3');
+
+    var checkoutButton = document.getElementById('checkout-button');
+    checkoutButton.addEventListener('click', function () {
+        fetch('/order/first_checkout/')
+            .then(function (response) {
+                return response.json();
+            })
+            .then(function (session) {
+                return stripe.redirectToCheckout({ sessionId: session.id });
+            })
+            .then(function (result) {
+                if (result.error) {
+                    alert(result.error.message);
+                }
+            })
+            .catch(function (error) {
+                console.error('Error:', error);
+            });
+    });
+</script>
 <script>
     function getCookie(name) {
         var cookieValue = null;
