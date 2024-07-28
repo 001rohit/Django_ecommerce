@@ -1,0 +1,41 @@
+Django project for Ecommerce
+1. create virtual environment in Django
+2. install Django and pip install pillow (image)
+3. create Django project for command --> Django-admin startproject (project name)
+4. create template for ( show data in web page) front-end
+
+**********************************Back_end**********************************
+A) Account (firstly create Account)-> 
+B) catogery (Secondly create Catogery)->
+C) Product (third create Product)->
+D) Orders (Fourth create Orders)->
+E) Cart(Fifth create Cart)->
+
+**********************************Front_end**********************************
+
+****************Product item Activity******************
+i) Home page
+ii) Store product
+iii) Product-detail
+iv) Add_cart
+v)Checkout
+   a.After fill address and personal information 
+****************user Account Activity******************
+vi)login page
+vii)registration page
+viii) forgot password
+iX) reset_password
+X)reset_email
+
+**************** user payment Activity******************
+xi) Payment proccess
+
+****************Product manage Activity******************
+ 1) create Account
+ 2) view product
+ 3) product_detail
+ 4) add product  
+ 5) checkout
+ 6) payment
+      
+     
